@@ -163,23 +163,22 @@ function printHookConfig(socketPath: string): void {
 }
 
 function runDemoMode(detector: IdleDetector): void {
-  let isIdle = false;
+  let shouldSimulateActivity = true;
+
+  // Start by going idle after initial delay
+  setTimeout(() => {
+    detector.onEvent({ event: 'done' });
+  }, 1000);
 
   setInterval(() => {
-    if (isIdle) {
+    if (shouldSimulateActivity) {
       console.log(chalk.dim('[demo] Simulating activity...'));
       detector.onEvent({ event: 'thinking' });
       setTimeout(() => {
         detector.onEvent({ event: 'done' });
       }, 1000);
-    } else {
-      // Let it go idle naturally via debounce
     }
-    isIdle = !isIdle;
+    // else: idle debounce will trigger idle state naturally
+    shouldSimulateActivity = !shouldSimulateActivity;
   }, 8000);
-
-  // Start with idle after initial delay
-  setTimeout(() => {
-    detector.onEvent({ event: 'done' });
-  }, 1000);
 }
