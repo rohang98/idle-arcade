@@ -1,6 +1,6 @@
 # idle-arcade
 
-Terminal games that auto-launch when Claude Code is idle.
+Terminal games that auto-launch when Claude Code is thinking.
 
 ```
 ╔══════════════════════════════════════╗
@@ -14,7 +14,12 @@ Terminal games that auto-launch when Claude Code is idle.
 
 ## What is this?
 
-When Claude Code is thinking, a game pops up in your terminal. When Claude finishes, the game vanishes.
+When Claude Code is thinking, a game pops up in your terminal. When Claude finishes, the game vanishes. Kill time while you wait.
+
+## Requirements
+
+- **Node.js** ≥ 20
+- **tmux** — games launch as a tmux popup over your current pane. If you're not in tmux, the game renders inline (alternate screen buffer).
 
 ## Install
 
@@ -22,7 +27,13 @@ When Claude Code is thinking, a game pops up in your terminal. When Claude finis
 npm install -g idle-arcade
 ```
 
-Hooks are configured automatically. Next time Claude Code starts thinking, Snake will launch.
+Then configure the Claude Code hooks:
+
+```bash
+idle-arcade setup
+```
+
+Next time Claude Code starts thinking, Snake will launch.
 
 ## Usage
 
@@ -40,44 +51,38 @@ idle-arcade scores
 ## How It Works
 
 ```
-Claude Code hooks → idle-arcade daemon → tmux popup / inline terminal
+Claude Code hooks → idle-arcade daemon → tmux popup / inline
 ```
 
-1. Claude Code hooks call `idle-arcade hook <event>` on tool use and stop
+1. Claude Code hooks call `idle-arcade hook <event>` on tool use and stop events
 2. The daemon starts automatically on the first hook event
-3. After 2s of inactivity, a game launches
-4. When Claude becomes active, the game dismisses instantly
+3. After 1.5s of Claude thinking, a game launches as a tmux popup (or inline)
+4. When Claude finishes, the game dismisses automatically
+
+## Display Modes
+
+Automatically detected:
+
+1. **tmux popup** (recommended) — floats over your current pane, dismisses cleanly
+2. **Inline** — alternate screen buffer fallback when tmux isn't available
 
 ## Watch Options
 
 ```bash
 idle-arcade watch --game snake       # Choose game
 idle-arcade watch --threshold 3000   # Custom idle timeout (ms)
-idle-arcade watch --demo             # Simulate idle cycles
+idle-arcade watch --demo             # Simulate thinking cycles
 ```
-
-## Display Modes
-
-Automatically detected:
-
-1. **tmux popup** — floats over your pane (best experience)
-2. **Inline** — alternate screen buffer fallback
 
 ## Manual Setup
 
-If hooks weren't configured automatically:
-
-```bash
-idle-arcade setup
-```
-
-Or add to `~/.claude/settings.json` manually:
+If `idle-arcade setup` doesn't work, add to `~/.claude/settings.json` manually:
 
 ```json
 {
   "hooks": {
     "PreToolUse": [{
-      "matcher": {},
+      "matcher": "",
       "hooks": [{
         "type": "command",
         "command": "idle-arcade hook thinking",
@@ -85,7 +90,7 @@ Or add to `~/.claude/settings.json` manually:
       }]
     }],
     "Stop": [{
-      "matcher": {},
+      "matcher": "",
       "hooks": [{
         "type": "command",
         "command": "idle-arcade hook done",
@@ -99,11 +104,11 @@ Or add to `~/.claude/settings.json` manually:
 ## Uninstall
 
 ```bash
+# Remove hooks from Claude Code settings
+idle-arcade uninstall
+
 # Remove the package
 npm uninstall -g idle-arcade
-
-# Remove hooks from Claude Code settings
-# Edit ~/.claude/settings.json and delete the idle-arcade hook entries
 
 # Optional: remove local data
 rm -rf ~/.config/idle-arcade
@@ -112,6 +117,13 @@ rm -rf ~/.config/idle-arcade
 ## Games
 
 - **Snake** — arrow keys/WASD/hjkl, P pause, Q quit
+
+## Upcoming
+
+- More games (Tetris, Breakout, 2048)
+- Native terminal window support (iTerm2, Ghostty, WezTerm, Terminal.app)
+- Kitty graphics protocol support
+- Game selection rotation
 
 ## Contributing
 
