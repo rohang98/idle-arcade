@@ -1,6 +1,6 @@
-# Contributing to idl
+# Contributing to idle-arcade
 
-Thanks for your interest in contributing to idl! This guide will help you get started.
+Thanks for your interest in contributing to idle-arcade! This guide will help you get started.
 
 ## Adding a New Game
 
@@ -98,8 +98,8 @@ npm run build
 ## Development Setup
 
 ```bash
-git clone https://github.com/yourusername/idl.git
-cd idl
+git clone https://github.com/yourusername/idle-arcade.git
+cd idle-arcade
 npm install
 npm run build
 ```

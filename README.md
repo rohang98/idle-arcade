@@ -1,4 +1,4 @@
-# idl
+# idle-arcade
 
 Terminal games that auto-launch when Claude Code is idle.
 
@@ -14,99 +14,64 @@ Terminal games that auto-launch when Claude Code is idle.
 
 ## What is this?
 
-`idl` is a companion tool for [Claude Code](https://claude.ai/claude-code). When Claude is thinking, a game automatically pops up in your terminal. When Claude finishes, the game vanishes.
+When Claude Code is thinking, a game pops up in your terminal. When Claude finishes, the game vanishes.
 
-**The killer demo:** Claude starts thinking → tmux popup with Snake → Claude finishes → game disappears.
-
-## Requirements
-
-- Node.js 20+
-- macOS or Linux
-- tmux (optional, for popup display)
-
-## Installation
+## Install
 
 ```bash
-npm install -g idl
+npm install -g idle-arcade
 ```
 
-## Quick Start
+Hooks are configured automatically. Next time Claude Code starts thinking, Snake will launch.
 
-### Play games directly
-
-```bash
-idl play snake
-```
-
-### Auto-launch on Claude Code idle
+## Usage
 
 ```bash
-# One-time setup: configure Claude Code hooks
-idl setup
+# Play directly
+idle-arcade play snake
 
-# Start watching for idle
-idl watch
+# List games
+idle-arcade games
+
+# High scores
+idle-arcade scores
 ```
 
 ## How It Works
 
 ```
-┌─────────────────┐     Unix Socket      ┌─────────────────┐
-│  Claude Code    │ ──────────────────→  │   idl daemon    │
-│  (hooks fire)   │   JSON events        │  (state machine)│
-└─────────────────┘                      └────────┬────────┘
-                                                  │
-                                         ┌────────▼────────┐
-                                         │  tmux popup     │
-                                         │  (Snake game)   │
-                                         └─────────────────┘
+Claude Code hooks → idle-arcade daemon → tmux popup / inline terminal
 ```
 
-1. Claude Code hooks notify `idl` when Claude starts/stops thinking
-2. After 2 seconds of inactivity, `idl` launches a game
-3. When Claude becomes active, the game instantly dismisses
-
-## Commands
-
-| Command | Description |
-|---------|-------------|
-| `idl play <game>` | Play a game directly |
-| `idl watch` | Watch Claude Code and auto-launch games |
-| `idl setup` | Auto-configure Claude Code hooks |
-| `idl games` | List available games |
-| `idl scores` | Show high scores and stats |
+1. Claude Code hooks call `idle-arcade hook <event>` on tool use and stop
+2. The daemon starts automatically on the first hook event
+3. After 2s of inactivity, a game launches
+4. When Claude becomes active, the game dismisses instantly
 
 ## Watch Options
 
 ```bash
-# Use a specific game
-idl watch --game snake
-
-# Custom idle threshold (default: 2000ms)
-idl watch --threshold 3000
-
-# Demo mode (simulates idle cycles)
-idl watch --demo
+idle-arcade watch --game snake       # Choose game
+idle-arcade watch --threshold 3000   # Custom idle timeout (ms)
+idle-arcade watch --demo             # Simulate idle cycles
 ```
-
-## Available Games
-
-- **Snake** - Classic snake game. Eat food, grow longer, avoid walls.
-
-More games coming soon! [Contribute a game →](CONTRIBUTING.md)
 
 ## Display Modes
 
-`idl` automatically detects the best display mode:
+Automatically detected:
 
-1. **tmux popup** - Floats over your tmux pane (recommended)
-2. **Inline** - Uses alternate screen buffer
+1. **tmux popup** — floats over your pane (best experience)
+2. **Inline** — alternate screen buffer fallback
 
-For the best experience, use tmux.
+## Manual Setup
 
-## Manual Hook Configuration
+If hooks weren't configured automatically:
 
-If you prefer manual setup, add to `~/.claude/settings.json`:
+```bash
+idle-arcade setup
+```
+
+Or add to `~/.claude/settings.json` manually:
 
 ```json
 {
@@ -115,7 +80,7 @@ If you prefer manual setup, add to `~/.claude/settings.json`:
       "matcher": {},
       "hooks": [{
         "type": "command",
-        "command": "echo '{\"event\":\"thinking\"}' | nc -U /tmp/idl.sock",
+        "command": "idle-arcade hook thinking",
         "timeout": 1000
       }]
     }],
@@ -123,7 +88,7 @@ If you prefer manual setup, add to `~/.claude/settings.json`:
       "matcher": {},
       "hooks": [{
         "type": "command",
-        "command": "echo '{\"event\":\"done\"}' | nc -U /tmp/idl.sock",
+        "command": "idle-arcade hook done",
         "timeout": 1000
       }]
     }]
@@ -131,13 +96,13 @@ If you prefer manual setup, add to `~/.claude/settings.json`:
 }
 ```
 
+## Games
+
+- **Snake** — arrow keys/WASD/hjkl, P pause, Q quit
+
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
-
-- How to add new games
-- Code style guidelines
-- Development setup
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add games.
 
 ## License
 
