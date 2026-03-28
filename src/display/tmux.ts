@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
 import { promisify } from 'util';
 import { exec as execCb } from 'child_process';
-import type { DisplayHandle, DisplayStrategy } from './types.js';
+import type { DisplayHandle, DisplayOptions, DisplayStrategy } from './types.js';
 import type { ReactElement } from 'react';
 
 const exec = promisify(execCb);
@@ -29,19 +29,19 @@ export class TmuxDisplay implements DisplayStrategy {
     }
   }
 
-  async launch(_component: ReactElement): Promise<DisplayHandle> {
+  async launch(_component: ReactElement, options?: DisplayOptions): Promise<DisplayHandle> {
     // Dismiss any existing popup first
     if (this.activePopup) {
       await this.activePopup.dismiss();
     }
 
-    const width = 60;
-    const height = 40;
-    const title = 'idl';
+    const gameId = options?.gameId ?? 'snake';
+    const width = options?.width ?? 60;
+    const height = options?.height ?? 40;
+    const title = options?.title ?? 'idl';
 
     // We'll spawn a new process that renders the component
-    // For now, we use the CLI entry point with a special flag
-    const popupCmd = `node ${process.argv[1]} play snake --popup`;
+    const popupCmd = `node ${process.argv[1]} play ${gameId} --popup`;
 
     const tmuxArgs = [
       'display-popup',

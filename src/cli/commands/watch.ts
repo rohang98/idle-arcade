@@ -123,7 +123,7 @@ async function launchGame(
       },
     });
 
-    await displayManager.launch(element);
+    await displayManager.launch(element, { gameId: game.metadata.id });
   } catch (err) {
     console.error(chalk.red('Failed to launch game:'), err);
   }

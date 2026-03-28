@@ -80,7 +80,7 @@ class DisplayManager {
       throw new Error('No display strategy available');
     }
 
-    this.activeHandle = await strategy.launch(component);
+    this.activeHandle = await strategy.launch(component, options);
     return this.activeHandle;
   }
 

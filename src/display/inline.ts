@@ -1,6 +1,6 @@
 import { render } from 'ink';
 import type { ReactElement } from 'react';
-import type { DisplayHandle, DisplayStrategy } from './types.js';
+import type { DisplayHandle, DisplayOptions, DisplayStrategy } from './types.js';
 
 /**
  * Inline display strategy.
@@ -18,7 +18,7 @@ export class InlineDisplay implements DisplayStrategy {
     return Promise.resolve(process.stdout.isTTY ?? false);
   }
 
-  launch(component: ReactElement): Promise<DisplayHandle> {
+  launch(component: ReactElement, _options?: DisplayOptions): Promise<DisplayHandle> {
     // Dismiss any existing instance
     if (this.activeInstance) {
       this.activeInstance.unmount();

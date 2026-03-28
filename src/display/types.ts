@@ -20,7 +20,7 @@ export interface DisplayStrategy {
    * @param component The React component to render
    * @returns A handle to dismiss the display
    */
-  launch(component: ReactElement): Promise<DisplayHandle>;
+  launch(component: ReactElement, options?: DisplayOptions): Promise<DisplayHandle>;
 }
 
 /**
@@ -44,6 +44,9 @@ export interface DisplayHandle {
 export interface DisplayOptions {
   /** Preferred display strategy (if available) */
   preferredStrategy?: string;
+
+  /** Game ID to launch (used by strategies that spawn a new process) */
+  gameId?: string;
 
   /** Title to show (if supported) */
   title?: string;
