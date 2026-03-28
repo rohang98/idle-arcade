@@ -27,13 +27,16 @@ interface HookEntry {
 
 /**
  * Auto-configure Claude Code hooks for idl integration.
+ * When `quiet` is true, suppresses decorative output (used during postinstall).
  */
-export function setupCommand(): void {
-  console.log(chalk.cyan('idl setup') + ' - Configure Claude Code hooks\n');
+export function setupCommand(options?: { quiet?: boolean }): void {
+  const log = options?.quiet ? (): void => {} : console.log.bind(console);
+
+  log(chalk.cyan('idl setup') + ' - Configure Claude Code hooks\n');
 
   // Check if Claude directory exists
   if (!existsSync(CLAUDE_DIR)) {
-    console.log(chalk.yellow('Creating ~/.claude directory...'));
+    log(chalk.yellow('Creating ~/.claude directory...'));
     mkdirSync(CLAUDE_DIR, { recursive: true });
   }
 
@@ -43,12 +46,12 @@ export function setupCommand(): void {
     try {
       const content = readFileSync(SETTINGS_FILE, 'utf-8');
       settings = JSON.parse(content) as ClaudeSettings;
-      console.log(chalk.green('✓') + ' Found existing settings.json');
-    } catch (err) {
-      console.log(chalk.yellow('⚠') + ' Could not parse existing settings.json, will create new one');
+      log(chalk.green('✓') + ' Found existing settings.json');
+    } catch {
+      log(chalk.yellow('⚠') + ' Could not parse existing settings.json, will create new one');
     }
   } else {
-    console.log(chalk.dim('No existing settings.json, creating new one'));
+    log(chalk.dim('No existing settings.json, creating new one'));
   }
 
   // Initialize hooks if needed
@@ -67,17 +70,17 @@ export function setupCommand(): void {
   // Write updated settings
   try {
     writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2), 'utf-8');
-    console.log(chalk.green('✓') + ' Updated ~/.claude/settings.json');
+    log(chalk.green('✓') + ' Updated ~/.claude/settings.json');
   } catch (err) {
     console.error(chalk.red('✗') + ` Failed to write settings: ${String(err)}`);
     process.exit(1);
   }
 
-  console.log();
-  console.log(chalk.green('Setup complete!'));
-  console.log();
-  console.log(chalk.dim('Use Claude Code normally — games will auto-launch when Claude is thinking!'));
-  console.log(chalk.dim('The daemon starts automatically on the first hook event.'));
+  log();
+  log(chalk.green('Setup complete!'));
+  log();
+  log(chalk.dim('Use Claude Code normally — games will auto-launch when Claude is thinking!'));
+  log(chalk.dim('The daemon starts automatically on the first hook event.'));
 }
 
 function createHookEntry(event: string): HookEntry {

@@ -43,8 +43,9 @@ program
 program
   .command('setup')
   .description('Auto-configure Claude Code hooks for idl')
-  .action(async () => {
-    await setupCommand();
+  .option('-q, --quiet', 'Suppress decorative output', false)
+  .action((options: { quiet?: boolean }) => {
+    setupCommand(options);
   });
 
 program

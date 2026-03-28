@@ -17,6 +17,7 @@
     "format:check": "prettier --check 'src/**/*.{ts,tsx}'",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
+    "postinstall": "node dist/cli/index.js setup --quiet 2>/dev/null || true",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
