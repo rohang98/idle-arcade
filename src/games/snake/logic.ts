@@ -33,20 +33,21 @@ export function spawnFood(
   snake: Position[]
 ): Position {
   const occupied = new Set(snake.map((p) => `${p.x},${p.y}`));
+  const free: Position[] = [];
 
-  let position: Position;
-  let attempts = 0;
-  const maxAttempts = cols * rows;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (!occupied.has(`${x},${y}`)) {
+        free.push({ x, y });
+      }
+    }
+  }
 
-  do {
-    position = {
-      x: Math.floor(Math.random() * cols),
-      y: Math.floor(Math.random() * rows),
-    };
-    attempts++;
-  } while (occupied.has(`${position.x},${position.y}`) && attempts < maxAttempts);
+  if (free.length === 0) {
+    return { x: 0, y: 0 };
+  }
 
-  return position;
+  return free[Math.floor(Math.random() * free.length)]!;
 }
 
 /**
@@ -66,8 +67,7 @@ export function collidesWithSnake(
 ): boolean {
   const start = skipHead ? 1 : 0;
   for (let i = start; i < snake.length; i++) {
-    const segment = snake[i];
-    if (segment && positionsEqual(position, segment)) {
+    if (positionsEqual(position, snake[i]!)) {
       return true;
     }
   }
