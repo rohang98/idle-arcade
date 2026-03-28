@@ -12,7 +12,7 @@ import { hookCommand } from './commands/hook.js';
 import '../games/index.js';
 
 const require = createRequire(import.meta.url);
-const { version } = require('../../package.json');
+const { version } = require('../../package.json') as { version: string };
 
 const program = new Command();
 
