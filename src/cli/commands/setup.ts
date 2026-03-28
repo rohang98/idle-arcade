@@ -2,7 +2,6 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 import chalk from 'chalk';
-import { SOCKET_PATH } from '../../config.js';
 
 const CLAUDE_DIR = join(homedir(), '.claude');
 const SETTINGS_FILE = join(CLAUDE_DIR, 'settings.json');
@@ -77,12 +76,8 @@ export function setupCommand(): void {
   console.log();
   console.log(chalk.green('Setup complete!'));
   console.log();
-  console.log('Next steps:');
-  console.log(chalk.dim('  1. Start the idl daemon:'));
-  console.log(chalk.white('     idl watch'));
-  console.log();
-  console.log(chalk.dim('  2. Use Claude Code normally'));
-  console.log(chalk.dim('     Games will launch when Claude is thinking!'));
+  console.log(chalk.dim('Use Claude Code normally — games will auto-launch when Claude is thinking!'));
+  console.log(chalk.dim('The daemon starts automatically on the first hook event.'));
 }
 
 function createHookEntry(event: string): HookEntry {
@@ -91,7 +86,7 @@ function createHookEntry(event: string): HookEntry {
     hooks: [
       {
         type: 'command',
-        command: `echo '{"event":"${event}"}' | nc -U ${SOCKET_PATH}`,
+        command: `idl hook ${event}`,
         timeout: 1000,
       },
     ],
@@ -106,15 +101,18 @@ function mergeHooks(
     return [newHook];
   }
 
-  // Check if idl hook already exists
+  // Check if idl hook already exists (matches both old nc-based and new idl hook commands)
+  const isIdlHook = (h: { command?: string }): boolean =>
+    !!h.command && (h.command.includes('idl hook') || h.command.includes('idl.sock'));
+
   const hasIdlHook = existing.some((entry) =>
-    entry.hooks?.some((h) => h.command?.includes('idl.sock'))
+    entry.hooks?.some(isIdlHook)
   );
 
   if (hasIdlHook) {
     // Update existing idl hook
     return existing.map((entry) => {
-      const hasIdl = entry.hooks?.some((h) => h.command?.includes('idl.sock'));
+      const hasIdl = entry.hooks?.some(isIdlHook);
       if (hasIdl) {
         return newHook;
       }

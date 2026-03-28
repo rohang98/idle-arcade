@@ -6,6 +6,7 @@ import { watchCommand } from './commands/watch.js';
 import { setupCommand } from './commands/setup.js';
 import { scoresCommand } from './commands/scores.js';
 import { listCommand } from './commands/list.js';
+import { hookCommand } from './commands/hook.js';
 
 // Import games to register them
 import '../games/index.js';
@@ -59,6 +60,13 @@ program
   .description('List available games')
   .action(async () => {
     await listCommand();
+  });
+
+program
+  .command('hook <event>')
+  .description('Handle a Claude Code hook event (auto-starts daemon)')
+  .action(async (event: string) => {
+    await hookCommand(event);
   });
 
 program.parse();
