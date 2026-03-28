@@ -4,10 +4,7 @@ import type { HookEvent } from './types.js';
 import type { IdleDetector } from './index.js';
 
 /**
- * Unix socket server that receives events from Claude Code hooks.
- *
- * Hooks send JSON messages like: {"event":"thinking"}
- * The server parses these and forwards to the IdleDetector.
+ * Unix socket server that receives hook events as newline-delimited JSON.
  */
 export class SocketServer {
   private server: Server | null = null;
@@ -20,39 +17,23 @@ export class SocketServer {
     this.socketPath = detector.getSocketPath();
   }
 
-  /**
-   * Start listening for hook events.
-   */
   async start(): Promise<void> {
-    // Clean up existing socket file
     if (existsSync(this.socketPath)) {
       try {
         unlinkSync(this.socketPath);
       } catch {
-        throw new Error(`Cannot remove existing socket at ${this.socketPath}`);
+        throw new Error(`Cannot remove stale socket at ${this.socketPath}`);
       }
     }
 
     return new Promise((resolve, reject) => {
-      this.server = createServer((socket) => {
-        this.handleConnection(socket);
-      });
-
-      this.server.on('error', (err) => {
-        reject(err);
-      });
-
-      this.server.listen(this.socketPath, () => {
-        resolve();
-      });
+      this.server = createServer((socket) => this.handleConnection(socket));
+      this.server.on('error', reject);
+      this.server.listen(this.socketPath, resolve);
     });
   }
 
-  /**
-   * Stop the server and clean up.
-   */
   async stop(): Promise<void> {
-    // Close all connections
     for (const socket of this.connections) {
       socket.destroy();
     }
@@ -65,13 +46,8 @@ export class SocketServer {
       }
 
       this.server.close(() => {
-        // Clean up socket file
         if (existsSync(this.socketPath)) {
-          try {
-            unlinkSync(this.socketPath);
-          } catch {
-            // Ignore cleanup errors
-          }
+          try { unlinkSync(this.socketPath); } catch { /* cleanup best-effort */ }
         }
         this.server = null;
         resolve();
@@ -79,57 +55,37 @@ export class SocketServer {
     });
   }
 
-  /**
-   * Get the socket path for external use (e.g., hook configuration).
-   */
   getSocketPath(): string {
     return this.socketPath;
   }
 
   private handleConnection(socket: Socket): void {
     this.connections.add(socket);
-
     let buffer = '';
 
     socket.on('data', (data) => {
       buffer += data.toString();
-
-      // Process complete lines (messages end with newline)
       const lines = buffer.split('\n');
       buffer = lines.pop() ?? '';
 
       for (const line of lines) {
-        if (line.trim()) {
-          this.processMessage(line.trim());
-        }
+        const trimmed = line.trim();
+        if (trimmed) this.processMessage(trimmed);
       }
     });
 
-    socket.on('close', () => {
-      this.connections.delete(socket);
-    });
-
-    socket.on('error', () => {
-      this.connections.delete(socket);
-    });
+    socket.on('close', () => this.connections.delete(socket));
+    socket.on('error', () => this.connections.delete(socket));
   }
 
   private processMessage(message: string): void {
     try {
       const event = JSON.parse(message) as HookEvent;
-
-      if (!event.event) {
-        return;
-      }
-
-      // Add timestamp if not present
-      if (!event.timestamp) {
-        event.timestamp = Date.now();
-      }
-
+      if (!event.event) return;
+      if (!event.timestamp) event.timestamp = Date.now();
       this.detector.onEvent(event);
     } catch {
-      // Ignore malformed messages
+      // Malformed JSON — ignore
     }
   }
 }

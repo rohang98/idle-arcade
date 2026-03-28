@@ -10,15 +10,11 @@ const DEFAULT_CONFIG: DetectorConfig = {
 };
 
 /**
- * Idle detector state machine.
+ * State machine that tracks Claude Code activity.
  *
- * Receives events from Claude Code hooks and determines
- * when Claude is idle (good time to show a game) vs active.
- *
- * State transitions:
- * - Any tool/subagent event → 'thinking'
- * - 'done' event → 'active' briefly, then after debounce → 'idle'
- * - No events for idleThresholdMs → 'idle'
+ * Transitions:
+ * - tool/subagent event → 'thinking'
+ * - 'done' event → 'active', then after debounce → 'idle'
  */
 export class IdleDetector extends EventEmitter {
   private state: ClaudeState = 'idle';
@@ -30,23 +26,14 @@ export class IdleDetector extends EventEmitter {
     this.config = { ...DEFAULT_CONFIG, ...config };
   }
 
-  /**
-   * Get the current detected state.
-   */
   getState(): ClaudeState {
     return this.state;
   }
 
-  /**
-   * Get the socket path for hook communication.
-   */
   getSocketPath(): string {
     return this.config.socketPath;
   }
 
-  /**
-   * Process an event from Claude Code hooks.
-   */
   onEvent(event: HookEvent): void {
     this.clearDebounce();
 
@@ -66,26 +53,17 @@ export class IdleDetector extends EventEmitter {
     }
   }
 
-  /**
-   * Manually mark as idle (e.g., for demo mode).
-   */
   markIdle(): void {
     this.clearDebounce();
     this.setState('idle');
   }
 
-  /**
-   * Manually mark as active (e.g., user started typing).
-   */
   markActive(): void {
     this.clearDebounce();
     this.setState('active');
     this.startIdleDebounce();
   }
 
-  /**
-   * Clean up timers.
-   */
   destroy(): void {
     this.clearDebounce();
     this.removeAllListeners();
@@ -93,9 +71,7 @@ export class IdleDetector extends EventEmitter {
 
   private setState(newState: ClaudeState): void {
     if (this.state === newState) return;
-
     this.state = newState;
-
     this.emit('stateChange', newState);
     this.emit(newState);
   }
@@ -113,7 +89,6 @@ export class IdleDetector extends EventEmitter {
     }
   }
 
-  // Type-safe event emitter methods
   override on<K extends keyof DetectorEvents>(
     event: K,
     listener: DetectorEvents[K]

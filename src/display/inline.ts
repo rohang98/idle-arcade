@@ -2,11 +2,14 @@ import { render } from 'ink';
 import type { ReactElement } from 'react';
 import type { DisplayHandle, DisplayOptions, DisplayStrategy } from './types.js';
 
-/**
- * Inline display strategy.
- * Renders games directly in the current terminal using Ink.
- * Uses alternate screen buffer to preserve terminal content.
- */
+function enterAltScreen(): void {
+  process.stdout.write('\x1b[?1049h\x1b[?25l');
+}
+
+function exitAltScreen(): void {
+  process.stdout.write('\x1b[?25h\x1b[?1049l');
+}
+
 export class InlineDisplay implements DisplayStrategy {
   readonly id = 'inline';
   readonly name = 'Inline Terminal';
@@ -14,57 +17,36 @@ export class InlineDisplay implements DisplayStrategy {
   private activeInstance: { unmount: () => void } | null = null;
 
   isAvailable(): Promise<boolean> {
-    // Always available as fallback
     return Promise.resolve(process.stdout.isTTY ?? false);
   }
 
   launch(component: ReactElement, _options?: DisplayOptions): Promise<DisplayHandle> {
-    // Dismiss any existing instance
     if (this.activeInstance) {
       this.activeInstance.unmount();
       this.activeInstance = null;
     }
 
-    // Enter alternate screen buffer
-    process.stdout.write('\x1b[?1049h');
-    // Hide cursor
-    process.stdout.write('\x1b[?25l');
+    enterAltScreen();
 
     let isActive = true;
-
-    const instance = render(component, {
-      exitOnCtrlC: true,
-    });
-
+    const instance = render(component, { exitOnCtrlC: true });
     this.activeInstance = instance;
 
-    const dismiss = (): Promise<void> => {
-      if (!isActive) return Promise.resolve();
+    const restore = (): void => {
+      if (!isActive) return;
       isActive = false;
-
       instance.unmount();
       this.activeInstance = null;
-
-      // Show cursor
-      process.stdout.write('\x1b[?25h');
-      // Exit alternate screen buffer
-      process.stdout.write('\x1b[?1049l');
-      return Promise.resolve();
+      exitAltScreen();
     };
 
-    // Handle cleanup on unmount
-    void instance.waitUntilExit().then(() => {
-      if (isActive) {
-        isActive = false;
-        // Show cursor
-        process.stdout.write('\x1b[?25h');
-        // Exit alternate screen buffer
-        process.stdout.write('\x1b[?1049l');
-      }
-    });
+    void instance.waitUntilExit().then(restore);
 
     return Promise.resolve({
-      dismiss,
+      dismiss: () => {
+        restore();
+        return Promise.resolve();
+      },
       isActive: () => isActive,
     });
   }

@@ -6,10 +6,6 @@ import type { ReactElement } from 'react';
 
 const exec = promisify(execCb);
 
-/**
- * tmux popup display strategy.
- * Launches games in a tmux popup window that floats over the current pane.
- */
 export class TmuxDisplay implements DisplayStrategy {
   readonly id = 'tmux';
   readonly name = 'tmux Popup';
@@ -18,19 +14,14 @@ export class TmuxDisplay implements DisplayStrategy {
 
   async isAvailable(): Promise<boolean> {
     try {
-      // Check if tmux is installed
       await exec('tmux -V');
-
-      // Check if we're inside a tmux session
-      const tmuxEnv = process.env['TMUX'];
-      return !!tmuxEnv;
+      return !!process.env['TMUX'];
     } catch {
       return false;
     }
   }
 
   async launch(_component: ReactElement, options?: DisplayOptions): Promise<DisplayHandle> {
-    // Dismiss any existing popup first
     if (this.activePopup) {
       await this.activePopup.dismiss();
     }
@@ -40,55 +31,34 @@ export class TmuxDisplay implements DisplayStrategy {
     const height = options?.height ?? 40;
     const title = options?.title ?? 'idle-arcade';
 
-    // We'll spawn a new process that renders the component
     const popupCmd = `node ${process.argv[1]} play ${gameId} --popup`;
-
-    const tmuxArgs = [
-      'display-popup',
-      '-E', // Close popup when command exits
-      '-w',
-      `${width}%`,
-      '-h',
-      `${height}%`,
-      '-T',
-      title,
-      popupCmd,
-    ];
 
     let isActive = true;
 
     const dismiss = async (): Promise<void> => {
       if (!isActive) return;
       isActive = false;
-
       try {
-        // Send escape to close popup, or kill the popup pane
         await exec('tmux display-popup -C 2>/dev/null || true');
-      } catch {
-        // Popup may already be closed
-      }
-
+      } catch { /* popup already closed */ }
       this.activePopup = null;
     };
 
-    // Spawn tmux popup (non-blocking)
-    const proc = spawn('tmux', tmuxArgs, {
-      stdio: 'ignore',
-      detached: true,
-    });
+    const proc = spawn('tmux', [
+      'display-popup', '-E',
+      '-w', `${width}%`,
+      '-h', `${height}%`,
+      '-T', title,
+      popupCmd,
+    ], { stdio: 'ignore', detached: true });
 
     proc.on('exit', () => {
       isActive = false;
       this.activePopup = null;
     });
-
     proc.unref();
 
-    const handle: DisplayHandle = {
-      dismiss,
-      isActive: () => isActive,
-    };
-
+    const handle: DisplayHandle = { dismiss, isActive: () => isActive };
     this.activePopup = handle;
     return handle;
   }

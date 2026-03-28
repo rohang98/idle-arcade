@@ -58,7 +58,7 @@ export function SnakeGame({
     const interval = setInterval(() => {
       setState((s) => tick(s, gameWidth, gameHeight));
     }, TICK_MS);
-    return () => clearInterval(interval);
+    return (): void => { clearInterval(interval); };
   }, [gameWidth, gameHeight]);
 
   const restart = useCallback(function restartGame(): void {

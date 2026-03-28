@@ -5,18 +5,14 @@ import { dirname, join } from 'path';
 import { SOCKET_PATH } from '../../config.js';
 
 /**
- * Send an event to the idl daemon, auto-starting it if needed.
- * Called by Claude Code hooks — must complete within 1000ms.
+ * Hook handler invoked by Claude Code. Must complete within 1000ms.
+ * Sends event to daemon socket, starting the daemon if needed.
  */
 export async function hookCommand(event: string): Promise<void> {
-  const sent = await trySendEvent(event);
-  if (sent) return;
+  if (await trySendEvent(event)) return;
 
-  // Daemon not running — spawn it in background
   spawnDaemon();
-
-  // Brief wait for daemon to bind the socket, then retry
-  await sleep(300);
+  await new Promise((r) => setTimeout(r, 300));
   await trySendEvent(event);
 }
 
@@ -44,7 +40,6 @@ function trySendEvent(event: string): Promise<boolean> {
 }
 
 function spawnDaemon(): void {
-  // Resolve the CLI entry point relative to this file
   const thisFile = fileURLToPath(import.meta.url);
   const cliEntry = join(dirname(thisFile), '..', 'index.js');
 
@@ -52,10 +47,5 @@ function spawnDaemon(): void {
     detached: true,
     stdio: 'ignore',
   });
-
   proc.unref();
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }

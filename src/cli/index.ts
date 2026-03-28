@@ -8,7 +8,6 @@ import { scoresCommand } from './commands/scores.js';
 import { listCommand } from './commands/list.js';
 import { hookCommand } from './commands/hook.js';
 
-// Import games to register them
 import '../games/index.js';
 
 const program = new Command();
@@ -28,10 +27,10 @@ program
 
 program
   .command('watch')
-  .description('Start daemon to watch Claude Code and launch games on idle')
+  .description('Watch Claude Code and auto-launch games on idle')
   .option('-g, --game <game>', 'Game to play when idle', 'snake')
-  .option('-t, --threshold <ms>', 'Idle threshold in milliseconds', '2000')
-  .option('--demo', 'Run in demo mode with simulated idle cycles', false)
+  .option('-t, --threshold <ms>', 'Idle threshold in ms (default: 2000)')
+  .option('--demo', 'Simulate idle cycles for testing', false)
   .action(async (options: { game?: string; threshold?: string; demo?: boolean }) => {
     await watchCommand({
       game: options.game,
@@ -42,30 +41,30 @@ program
 
 program
   .command('setup')
-  .description('Auto-configure Claude Code hooks')
-  .option('-q, --quiet', 'Suppress decorative output', false)
+  .description('Configure Claude Code hooks')
+  .option('-q, --quiet', 'Suppress output', false)
   .action((options: { quiet?: boolean }) => {
     setupCommand(options);
   });
 
 program
   .command('scores')
-  .description('Show high scores and statistics')
-  .action(async () => {
-    await scoresCommand();
+  .description('Show high scores and stats')
+  .action(() => {
+    scoresCommand();
   });
 
 program
   .command('games')
   .alias('list')
   .description('List available games')
-  .action(async () => {
-    await listCommand();
+  .action(() => {
+    listCommand();
   });
 
 program
-  .command('hook <event>')
-  .description('Handle a Claude Code hook event (auto-starts daemon)')
+  .command('hook <event>', { hidden: true })
+  .description('Handle hook event (internal)')
   .action(async (event: string) => {
     await hookCommand(event);
   });

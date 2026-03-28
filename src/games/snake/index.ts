@@ -1,12 +1,6 @@
 import { registerGame } from '../registry.js';
 import { SnakeGame } from './SnakeGame.js';
 
-/**
- * Snake game registration.
- *
- * Classic snake game where you eat food to grow longer.
- * Avoid hitting walls or yourself!
- */
 registerGame({
   metadata: {
     id: 'snake',
@@ -15,7 +9,7 @@ registerGame({
     author: 'idle-arcade contributors',
     version: '1.0.0',
     minDimensions: { cols: 30, rows: 15 },
-    controls: '←↑↓→ or WASD to move, P to pause, Q to quit',
+    controls: 'Arrow keys/WASD/hjkl, P pause, Q quit',
   },
   component: SnakeGame,
 });
