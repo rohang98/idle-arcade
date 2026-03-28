@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { createRequire } from 'module';
 import { Command } from 'commander';
 import { playCommand } from './commands/play.js';
 import { watchCommand } from './commands/watch.js';
@@ -10,12 +11,15 @@ import { hookCommand } from './commands/hook.js';
 
 import '../games/index.js';
 
+const require = createRequire(import.meta.url);
+const { version } = require('../../package.json');
+
 const program = new Command();
 
 program
   .name('idle-arcade')
   .description('Terminal games that auto-launch when Claude Code is idle')
-  .version('0.1.0');
+  .version(version);
 
 program
   .command('play <game>')

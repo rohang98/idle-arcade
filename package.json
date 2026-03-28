@@ -29,12 +29,16 @@
     "idle",
     "tmux"
   ],
-  "author": "",
+  "author": "Rohan Gupta",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/idle-arcade"
+    "url": "https://github.com/rohang98/idle-arcade.git"
   },
+  "bugs": {
+    "url": "https://github.com/rohang98/idle-arcade/issues"
+  },
+  "homepage": "https://github.com/rohang98/idle-arcade#readme",
   "engines": {
     "node": ">=20.0.0"
   },
