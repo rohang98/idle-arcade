@@ -21,16 +21,13 @@ const EMPTY = ' ';
 
 const TICK_MS = 100;
 
-interface SnakeGameProps extends GameProps {}
-
 export function SnakeGame({
   dimensions,
   events,
   onExit,
-}: SnakeGameProps): React.ReactElement {
+}: GameProps): React.ReactElement {
   const { exit } = useApp();
 
-  // Game area is dimensions minus border (2 chars each side)
   const gameWidth = Math.max(10, dimensions.cols - 4);
   const gameHeight = Math.max(6, dimensions.rows - 4);
 
@@ -43,7 +40,6 @@ export function SnakeGame({
 
   const lastScoreRef = useRef(0);
 
-  // Handle score changes
   useEffect(() => {
     if (state.score !== lastScoreRef.current) {
       lastScoreRef.current = state.score;
@@ -51,7 +47,6 @@ export function SnakeGame({
     }
   }, [state.score, events]);
 
-  // Handle game over
   useEffect(() => {
     if (state.isGameOver) {
       events?.onStateChange?.('game_over');
@@ -59,22 +54,18 @@ export function SnakeGame({
     }
   }, [state.isGameOver, state.score, events]);
 
-  // Game loop
   useEffect(() => {
     const interval = setInterval(() => {
       setState((s) => tick(s, gameWidth, gameHeight));
     }, TICK_MS);
-
     return () => clearInterval(interval);
   }, [gameWidth, gameHeight]);
 
-  // Restart game
   const restart = useCallback(function restartGame(): void {
     setState(createInitialState(gameWidth, gameHeight));
     events?.onStateChange?.('running');
   }, [gameWidth, gameHeight, events]);
 
-  // Handle input
   useInput((input, key) => {
     if (input === 'q' || (key.ctrl && input === 'c')) {
       onExit?.();
@@ -112,19 +103,16 @@ export function SnakeGame({
     }
   });
 
-  // Render game grid
   const renderGrid = (): string[] => {
     const grid: string[][] = Array.from({ length: gameHeight }, () =>
       Array.from({ length: gameWidth }, () => EMPTY)
     );
 
-    // Place food
     const foodRow = grid[state.food.y];
     if (foodRow) {
       foodRow[state.food.x] = FOOD;
     }
 
-    // Place snake
     state.snake.forEach((segment, index) => {
       const row = grid[segment.y];
       if (row) {
@@ -146,11 +134,10 @@ export function SnakeGame({
 
   return (
     <Box flexDirection="column">
-      {/* Top border with score */}
       <Box>
         <Text color="cyan">{BORDER.topLeft}</Text>
         <Text color="cyan">
-          {BORDER.horizontal.repeat(gameWidth - scoreText.length)}
+          {BORDER.horizontal.repeat(Math.max(0, gameWidth - scoreText.length))}
         </Text>
         <Text color="yellow" bold>
           {scoreText}
@@ -158,7 +145,6 @@ export function SnakeGame({
         <Text color="cyan">{BORDER.topRight}</Text>
       </Box>
 
-      {/* Game area */}
       {gridLines.map((line, i) => (
         <Box key={i}>
           <Text color="cyan">{BORDER.vertical}</Text>
@@ -192,10 +178,8 @@ export function SnakeGame({
         </Box>
       ))}
 
-      {/* Bottom border */}
       <Text color="cyan">{bottomBorder}</Text>
 
-      {/* Status line */}
       <Box marginTop={1}>
         {state.isGameOver ? (
           <Text color="red" bold>
