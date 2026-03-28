@@ -2,19 +2,12 @@ import chalk from 'chalk';
 import { getScores, getStats } from '../../state/index.js';
 import { getAllGames } from '../../games/index.js';
 
-/**
- * Display high scores and stats.
- */
 export function scoresCommand(): void {
-  console.log(chalk.cyan('idle-arcade scores') + ' - Your gaming stats\n');
-
   const scores = getScores();
   const stats = getStats();
   const games = getAllGames();
 
-  // Display high scores
-  console.log(chalk.bold('High Scores:'));
-  console.log(chalk.dim('─'.repeat(40)));
+  console.log(chalk.bold('High Scores'));
 
   let hasScores = false;
   for (const game of games) {
@@ -23,34 +16,28 @@ export function scoresCommand(): void {
       hasScores = true;
       const date = new Date(score.date).toLocaleDateString();
       console.log(
-        `  ${chalk.white(game.metadata.name.padEnd(15))} ` +
-          `${chalk.yellow(score.score.toString().padStart(6))} ` +
+        `  ${game.metadata.name.padEnd(15)} ` +
+          `${chalk.bold(score.score.toString().padStart(6))} ` +
           chalk.dim(`(${date})`)
       );
     }
   }
 
   if (!hasScores) {
-    console.log(chalk.dim('  No high scores yet. Play some games!'));
+    console.log(chalk.dim('  No scores yet.'));
   }
 
   console.log();
-
-  // Display stats
-  console.log(chalk.bold('Statistics:'));
-  console.log(chalk.dim('─'.repeat(40)));
-  console.log(`  Games played:     ${chalk.white(stats.gamesPlayed.toString())}`);
-  console.log(`  Watch sessions:   ${chalk.white(stats.sessionsWatched.toString())}`);
+  console.log(chalk.bold('Stats'));
+  console.log(`  Games played:    ${stats.gamesPlayed}`);
+  console.log(`  Watch sessions:  ${stats.sessionsWatched}`);
 
   if (stats.totalIdleTime > 0) {
     const minutes = Math.round(stats.totalIdleTime / 60000);
-    console.log(`  Total idle time:  ${chalk.white(minutes + ' min')}`);
+    console.log(`  Idle time:       ${minutes} min`);
   }
 
   if (stats.firstUsed) {
-    const firstUsed = new Date(stats.firstUsed).toLocaleDateString();
-    console.log(`  First used:       ${chalk.dim(firstUsed)}`);
+    console.log(`  Since:           ${chalk.dim(new Date(stats.firstUsed).toLocaleDateString())}`);
   }
-
-  console.log();
 }

@@ -25,62 +25,38 @@ interface HookEntry {
   }>;
 }
 
-/**
- * Auto-configure Claude Code hooks for idl integration.
- * When `quiet` is true, suppresses decorative output (used during postinstall).
- */
 export function setupCommand(options?: { quiet?: boolean }): void {
   const log = options?.quiet ? (): void => {} : console.log.bind(console);
 
-  log(chalk.cyan('idle-arcade setup') + ' - Configure Claude Code hooks\n');
-
-  // Check if Claude directory exists
   if (!existsSync(CLAUDE_DIR)) {
-    log(chalk.yellow('Creating ~/.claude directory...'));
     mkdirSync(CLAUDE_DIR, { recursive: true });
   }
 
-  // Read existing settings
   let settings: ClaudeSettings = {};
   if (existsSync(SETTINGS_FILE)) {
     try {
       const content = readFileSync(SETTINGS_FILE, 'utf-8');
       settings = JSON.parse(content) as ClaudeSettings;
-      log(chalk.green('✓') + ' Found existing settings.json');
     } catch {
-      log(chalk.yellow('⚠') + ' Could not parse existing settings.json, will create new one');
+      // Corrupted settings — start fresh
     }
-  } else {
-    log(chalk.dim('No existing settings.json, creating new one'));
   }
 
-  // Initialize hooks if needed
   if (!settings.hooks) {
     settings.hooks = {};
   }
 
-  // Add PreToolUse hook
-  const preToolUseHook = createHookEntry('thinking');
-  settings.hooks.PreToolUse = mergeHooks(settings.hooks.PreToolUse, preToolUseHook);
+  settings.hooks.PreToolUse = mergeHooks(settings.hooks.PreToolUse, createHookEntry('thinking'));
+  settings.hooks.Stop = mergeHooks(settings.hooks.Stop, createHookEntry('done'));
 
-  // Add Stop hook
-  const stopHook = createHookEntry('done');
-  settings.hooks.Stop = mergeHooks(settings.hooks.Stop, stopHook);
-
-  // Write updated settings
   try {
     writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2), 'utf-8');
-    log(chalk.green('✓') + ' Updated ~/.claude/settings.json');
+    log(chalk.green('✓') + ' Hooks configured in ~/.claude/settings.json');
+    log(chalk.dim('  Games will auto-launch when Claude is idle.'));
   } catch (err) {
-    console.error(chalk.red('✗') + ` Failed to write settings: ${String(err)}`);
+    console.error(chalk.red('✗') + ` Failed to write ${SETTINGS_FILE}: ${String(err)}`);
     process.exit(1);
   }
-
-  log();
-  log(chalk.green('Setup complete!'));
-  log();
-  log(chalk.dim('Use Claude Code normally — games will auto-launch when Claude is thinking!'));
-  log(chalk.dim('The daemon starts automatically on the first hook event.'));
 }
 
 function createHookEntry(event: string): HookEntry {
@@ -96,6 +72,11 @@ function createHookEntry(event: string): HookEntry {
   };
 }
 
+function isOurHook(h: { command?: string }): boolean {
+  if (!h.command) return false;
+  return h.command.includes('idle-arcade') || h.command.includes('idl');
+}
+
 function mergeHooks(
   existing: HookEntry[] | undefined,
   newHook: HookEntry
@@ -104,25 +85,13 @@ function mergeHooks(
     return [newHook];
   }
 
-  // Check if idl hook already exists (matches both old nc-based and new idl hook commands)
-  const isIdlHook = (h: { command?: string }): boolean =>
-    !!h.command && (h.command.includes('idle-arcade hook') || h.command.includes('idle-arcade.sock') || h.command.includes('idl.sock') || h.command.includes('idl hook'));
+  const hasOurs = existing.some((entry) => entry.hooks?.some(isOurHook));
 
-  const hasIdlHook = existing.some((entry) =>
-    entry.hooks?.some(isIdlHook)
-  );
-
-  if (hasIdlHook) {
-    // Update existing idl hook
-    return existing.map((entry) => {
-      const hasIdl = entry.hooks?.some(isIdlHook);
-      if (hasIdl) {
-        return newHook;
-      }
-      return entry;
-    });
+  if (hasOurs) {
+    return existing.map((entry) =>
+      entry.hooks?.some(isOurHook) ? newHook : entry
+    );
   }
 
-  // Add new hook
   return [...existing, newHook];
 }
