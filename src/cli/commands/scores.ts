@@ -6,7 +6,7 @@ import { getAllGames } from '../../games/index.js';
  * Display high scores and stats.
  */
 export function scoresCommand(): void {
-  console.log(chalk.cyan('idl scores') + ' - Your gaming stats\n');
+  console.log(chalk.cyan('idle-arcade scores') + ' - Your gaming stats\n');
 
   const scores = getScores();
   const stats = getStats();

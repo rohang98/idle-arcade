@@ -3,7 +3,7 @@ import { homedir } from 'os';
 import { join } from 'path';
 import type { GameScores, HighScoreEntry, Stats } from './types.js';
 
-const CONFIG_DIR = join(homedir(), '.config', 'idl');
+const CONFIG_DIR = join(homedir(), '.config', 'idle-arcade');
 const SCORES_FILE = join(CONFIG_DIR, 'scores.json');
 const STATS_FILE = join(CONFIG_DIR, 'stats.json');
 

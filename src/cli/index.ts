@@ -14,7 +14,7 @@ import '../games/index.js';
 const program = new Command();
 
 program
-  .name('idl')
+  .name('idle-arcade')
   .description('Terminal games that auto-launch when Claude Code is idle')
   .version('0.1.0');
 
@@ -42,7 +42,7 @@ program
 
 program
   .command('setup')
-  .description('Auto-configure Claude Code hooks for idl')
+  .description('Auto-configure Claude Code hooks')
   .option('-q, --quiet', 'Suppress decorative output', false)
   .action((options: { quiet?: boolean }) => {
     setupCommand(options);

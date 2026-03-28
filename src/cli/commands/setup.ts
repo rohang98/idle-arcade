@@ -32,7 +32,7 @@ interface HookEntry {
 export function setupCommand(options?: { quiet?: boolean }): void {
   const log = options?.quiet ? (): void => {} : console.log.bind(console);
 
-  log(chalk.cyan('idl setup') + ' - Configure Claude Code hooks\n');
+  log(chalk.cyan('idle-arcade setup') + ' - Configure Claude Code hooks\n');
 
   // Check if Claude directory exists
   if (!existsSync(CLAUDE_DIR)) {
@@ -89,7 +89,7 @@ function createHookEntry(event: string): HookEntry {
     hooks: [
       {
         type: 'command',
-        command: `idl hook ${event}`,
+        command: `idle-arcade hook ${event}`,
         timeout: 1000,
       },
     ],
@@ -106,7 +106,7 @@ function mergeHooks(
 
   // Check if idl hook already exists (matches both old nc-based and new idl hook commands)
   const isIdlHook = (h: { command?: string }): boolean =>
-    !!h.command && (h.command.includes('idl hook') || h.command.includes('idl.sock'));
+    !!h.command && (h.command.includes('idle-arcade hook') || h.command.includes('idle-arcade.sock') || h.command.includes('idl.sock') || h.command.includes('idl hook'));
 
   const hasIdlHook = existing.some((entry) =>
     entry.hooks?.some(isIdlHook)

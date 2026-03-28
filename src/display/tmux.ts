@@ -38,7 +38,7 @@ export class TmuxDisplay implements DisplayStrategy {
     const gameId = options?.gameId ?? 'snake';
     const width = options?.width ?? 60;
     const height = options?.height ?? 40;
-    const title = options?.title ?? 'idl';
+    const title = options?.title ?? 'idle-arcade';
 
     // We'll spawn a new process that renders the component
     const popupCmd = `node ${process.argv[1]} play ${gameId} --popup`;

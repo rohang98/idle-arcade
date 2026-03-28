@@ -12,7 +12,7 @@ registerGame({
     id: 'snake',
     name: 'Snake',
     description: 'Classic snake game - eat food, grow longer, avoid walls',
-    author: 'idl contributors',
+    author: 'idle-arcade contributors',
     version: '1.0.0',
     minDimensions: { cols: 30, rows: 15 },
     controls: '←↑↓→ or WASD to move, P to pause, Q to quit',

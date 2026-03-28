@@ -1,4 +1,4 @@
-# idl - Project Context for Claude Code
+# idle-arcade
 
 Terminal games that auto-launch when Claude Code is idle.
 
@@ -9,11 +9,12 @@ src/
 ├── cli/                    # CLI entry point and commands
 │   ├── index.ts           # Commander setup, main entry
 │   └── commands/
-│       ├── play.tsx       # `idl play <game>` - direct play
-│       ├── watch.ts       # `idl watch` - daemon mode
-│       ├── setup.ts       # `idl setup` - configure hooks
-│       ├── list.ts        # `idl games` - list games
-│       └── scores.ts      # `idl scores` - high scores
+│       ├── play.tsx       # `idle-arcade play <game>` - direct play
+│       ├── watch.ts       # `idle-arcade watch` - daemon mode
+│       ├── setup.ts       # `idle-arcade setup` - configure hooks
+│       ├── hook.ts        # `idle-arcade hook <event>` - hook handler (auto-starts daemon)
+│       ├── list.ts        # `idle-arcade games` - list games
+│       └── scores.ts      # `idle-arcade scores` - high scores
 │
 ├── games/                  # Game implementations
 │   ├── types.ts           # GameProps, GameDefinition, GameMetadata
@@ -38,9 +39,10 @@ src/
 │
 ├── state/                  # Persistence
 │   ├── types.ts           # HighScoreEntry, Stats
-│   ├── storage.ts         # Read/write ~/.config/idl/*.json
+│   ├── storage.ts         # Read/write ~/.config/idle-arcade/*.json
 │   └── index.ts           # Re-exports
 │
+├── config.ts              # Shared constants (socket path)
 └── index.ts               # Library entry point
 ```
 
@@ -72,7 +74,7 @@ interface DisplayStrategy {
   id: string;
   name: string;
   isAvailable(): Promise<boolean>;
-  launch(component: ReactElement): Promise<DisplayHandle>;
+  launch(component: ReactElement, options?: DisplayOptions): Promise<DisplayHandle>;
 }
 ```
 
@@ -92,32 +94,11 @@ npm run typecheck  # Type checking only
 npm run dev        # tsx watch mode
 ```
 
-## Current Status
-
-### Working
-- Snake game renders and plays correctly
-- CLI commands: play, watch, setup, games, scores
-- High score persistence
-- Inline display (alternate screen buffer)
-- Idle detector state machine
-- Unix socket server for hook events
-
-### Needs Work
-- **Hero GIF** for README showing game launch/dismiss cycle
-- tmux popup: launches but doesn't pass component properly (uses hardcoded `play snake`)
-- Integration testing with real Claude Code session
-- More games (Tetris, Pong, etc.)
-
 ## Hook Integration
 
-Claude Code hooks send JSON to Unix socket at `/tmp/idl.sock`:
+Claude Code hooks call `idle-arcade hook <event>` which auto-starts the daemon if needed.
 
-```json
-{"event": "thinking"}  // PreToolUse
-{"event": "done"}      // Stop
-```
-
-`idl setup` auto-configures `~/.claude/settings.json`.
+`idle-arcade setup` auto-configures `~/.claude/settings.json`.
 
 ## Design Principles
 

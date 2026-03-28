@@ -1,5 +1,5 @@
 /**
- * idl - Terminal games for Claude Code idle time
+ * idle-arcade - Terminal games for Claude Code idle time
  *
  * This is the main library entry point for programmatic usage.
  * For CLI usage, see src/cli/index.ts

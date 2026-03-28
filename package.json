@@ -1,11 +1,11 @@
 {
-  "name": "idl",
+  "name": "idle-arcade",
   "version": "0.1.0",
   "description": "Terminal games that auto-launch when Claude Code is idle",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "idl": "dist/cli/index.js"
+    "idle-arcade": "dist/cli/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -33,7 +33,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/idl"
+    "url": "https://github.com/yourusername/idle-arcade"
   },
   "engines": {
     "node": ">=20.0.0"

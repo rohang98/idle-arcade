@@ -6,7 +6,7 @@ import { getHighScore } from '../../state/index.js';
  * List all available games.
  */
 export function listCommand(): void {
-  console.log(chalk.cyan('idl games') + ' - Available games\n');
+  console.log(chalk.cyan('idle-arcade games') + ' - Available games\n');
 
   const games = getAllGames();
 
@@ -38,5 +38,5 @@ export function listCommand(): void {
     console.log();
   }
 
-  console.log(chalk.dim('Play a game: ') + chalk.white('idl play <game>'));
+  console.log(chalk.dim('Play a game: ') + chalk.white('idle-arcade play <game>'));
 }

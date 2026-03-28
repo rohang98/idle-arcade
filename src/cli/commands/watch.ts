@@ -37,7 +37,7 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
   // Track session
   incrementStat('sessionsWatched');
 
-  console.log(chalk.cyan('idl') + ' - Terminal games for Claude Code idle time\n');
+  console.log(chalk.cyan('idle-arcade') + ' - Terminal games for Claude Code idle time\n');
 
   try {
     await socketServer.start();
@@ -53,7 +53,7 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
   // Show hook setup instructions
   console.log(chalk.yellow('To enable auto-detection, add hooks to Claude Code:'));
   console.log();
-  console.log(chalk.dim('  Run: ') + chalk.white('idl setup'));
+  console.log(chalk.dim('  Run: ') + chalk.white('idle-arcade setup'));
   console.log();
   console.log(chalk.dim('Or manually add to ~/.claude/settings.json:'));
   console.log();
