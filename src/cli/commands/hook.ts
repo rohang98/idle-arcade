@@ -26,7 +26,8 @@ function trySendEvent(event: string): Promise<boolean> {
     }, 500);
 
     socket.on('connect', () => {
-      socket.write(`{"event":"${event}"}\n`);
+      const msg = JSON.stringify({ event });
+      socket.write(msg + '\n');
       socket.end();
       clearTimeout(timeout);
       resolve(true);

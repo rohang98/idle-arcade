@@ -17,7 +17,7 @@ interface ClaudeSettings {
 }
 
 interface HookEntry {
-  matcher?: Record<string, unknown>;
+  matcher?: string;
   hooks?: Array<{
     type: string;
     command?: string;
@@ -61,7 +61,7 @@ export function setupCommand(options?: { quiet?: boolean }): void {
 
 function createHookEntry(event: string): HookEntry {
   return {
-    matcher: {},
+    matcher: "",
     hooks: [
       {
         type: 'command',

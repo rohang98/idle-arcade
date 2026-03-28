@@ -20,7 +20,6 @@ export class IdleDetector extends EventEmitter {
   private state: ClaudeState = 'idle';
   private config: DetectorConfig;
   private debounceTimer: NodeJS.Timeout | null = null;
-
   constructor(config: Partial<DetectorConfig> = {}) {
     super();
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -62,6 +61,12 @@ export class IdleDetector extends EventEmitter {
     this.clearDebounce();
     this.setState('active');
     this.startIdleDebounce();
+  }
+
+  /** Mark active without restarting idle timer. Used after game exit to wait for next hook event. */
+  markActiveNoDebounce(): void {
+    this.clearDebounce();
+    this.setState('active');
   }
 
   destroy(): void {

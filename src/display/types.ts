@@ -56,4 +56,5 @@ export interface DisplayOptions {
 
   /** Height percentage for popup displays */
   height?: number;
+
 }

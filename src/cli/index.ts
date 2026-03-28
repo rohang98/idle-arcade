@@ -8,6 +8,7 @@ import { setupCommand } from './commands/setup.js';
 import { scoresCommand } from './commands/scores.js';
 import { listCommand } from './commands/list.js';
 import { hookCommand } from './commands/hook.js';
+import { uninstallCommand } from './commands/uninstall.js';
 
 import '../games/index.js';
 
@@ -64,6 +65,13 @@ program
   .description('List available games')
   .action(() => {
     listCommand();
+  });
+
+program
+  .command('uninstall')
+  .description('Remove hooks and clean up')
+  .action(() => {
+    uninstallCommand();
   });
 
 program

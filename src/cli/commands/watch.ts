@@ -3,7 +3,6 @@ import { IdleDetector } from '../../detector/index.js';
 import { SocketServer } from '../../detector/socket-server.js';
 import { displayManager } from '../../display/index.js';
 import { getGame, getAllGames } from '../../games/index.js';
-import type { GameDefinition } from '../../games/types.js';
 import { incrementStat } from '../../state/index.js';
 import chalk from 'chalk';
 
@@ -48,11 +47,27 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
     runDemoMode(detector);
   }
 
-  detector.on('idle', () => {
-    void launchGame(game, detector);
+  // Launch game when Claude is thinking (user is waiting).
+  // Close game when Claude is done (user needs to interact).
+  let launchTimer: NodeJS.Timeout | null = null;
+  let launching = false;
+
+  detector.on('thinking', () => {
+    // Small delay to avoid flashing on very quick tool uses
+    if (launchTimer || launching || displayManager.isActive()) return;
+    launchTimer = setTimeout(() => {
+      launchTimer = null;
+      if (!launching && !displayManager.isActive()) {
+        void launchGame();
+      }
+    }, 1500);
   });
 
   detector.on('active', () => {
+    if (launchTimer) {
+      clearTimeout(launchTimer);
+      launchTimer = null;
+    }
     void displayManager.dismiss();
   });
 
@@ -66,47 +81,46 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
   process.on('SIGINT', () => void cleanup());
   process.on('SIGTERM', () => void cleanup());
 
+  async function launchGame(): Promise<void> {
+    if (!game) return;
+    launching = true;
+    try {
+      const dimensions = {
+        cols: process.stdout.columns || 80,
+        rows: process.stdout.rows || 24,
+      };
+
+      const element = createElement(game.component, {
+        dimensions,
+        onExit: () => {
+          displayManager.dismiss().catch(() => {});
+          detector.markActiveNoDebounce();
+        },
+      });
+
+      await displayManager.launch(element, {
+        gameId: game.metadata.id,
+      });
+    } catch (err) {
+      console.error(chalk.red('✗') + ` Launch failed: ${String(err)}`);
+    } finally {
+      launching = false;
+    }
+  }
+
   await new Promise(() => {});
 }
 
-async function launchGame(
-  game: GameDefinition,
-  detector: IdleDetector
-): Promise<void> {
-  try {
-    const dimensions = {
-      cols: process.stdout.columns || 80,
-      rows: process.stdout.rows || 24,
-    };
-
-    const element = createElement(game.component, {
-      dimensions,
-      onExit: () => {
-        displayManager.dismiss().catch(() => {});
-        detector.markActive();
-      },
-    });
-
-    await displayManager.launch(element, { gameId: game.metadata.id });
-  } catch (err) {
-    console.error(chalk.red('✗') + ` Launch failed: ${String(err)}`);
-  }
-}
-
 function runDemoMode(detector: IdleDetector): void {
-  let shouldSimulateActivity = true;
-
+  // Simulate: thinking for 10s, then done for 5s, repeat
   setTimeout(() => {
-    detector.onEvent({ event: 'done' });
+    detector.onEvent({ event: 'thinking' });
   }, 1000);
 
   setInterval(() => {
-    if (shouldSimulateActivity) {
-      detector.onEvent({ event: 'thinking' });
-      setTimeout(() => {
-        detector.onEvent({ event: 'done' });
-      }, 1000);
-    }
-    shouldSimulateActivity = !shouldSimulateActivity;
-  }, 8000);
+    detector.onEvent({ event: 'thinking' });
+    setTimeout(() => {
+      detector.onEvent({ event: 'done' });
+    }, 10000);
+  }, 15000);
 }
