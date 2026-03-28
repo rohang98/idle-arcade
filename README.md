@@ -96,6 +96,19 @@ Or add to `~/.claude/settings.json` manually:
 }
 ```
 
+## Uninstall
+
+```bash
+# Remove the package
+npm uninstall -g idle-arcade
+
+# Remove hooks from Claude Code settings
+# Edit ~/.claude/settings.json and delete the idle-arcade hook entries
+
+# Optional: remove local data
+rm -rf ~/.config/idle-arcade
+```
+
 ## Games
 
 - **Snake** — arrow keys/WASD/hjkl, P pause, Q quit
