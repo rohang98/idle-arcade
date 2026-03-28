@@ -1,11 +1,12 @@
 import { EventEmitter } from 'events';
 import type { ClaudeState, DetectorConfig, DetectorEvents, HookEvent } from './types.js';
+import { SOCKET_PATH } from '../config.js';
 
 export * from './types.js';
 
 const DEFAULT_CONFIG: DetectorConfig = {
   idleThresholdMs: 2000,
-  socketPath: '/tmp/idl.sock',
+  socketPath: SOCKET_PATH,
 };
 
 /**

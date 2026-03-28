@@ -2,10 +2,10 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 import chalk from 'chalk';
+import { SOCKET_PATH } from '../../config.js';
 
 const CLAUDE_DIR = join(homedir(), '.claude');
 const SETTINGS_FILE = join(CLAUDE_DIR, 'settings.json');
-const SOCKET_PATH = '/tmp/idl.sock';
 
 interface ClaudeSettings {
   hooks?: {
