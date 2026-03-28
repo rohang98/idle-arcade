@@ -103,6 +103,7 @@ npm run dev        # tsx watch mode
 - Unix socket server for hook events
 
 ### Needs Work
+- **Hero GIF** for README showing game launch/dismiss cycle
 - tmux popup: launches but doesn't pass component properly (uses hardcoded `play snake`)
 - Integration testing with real Claude Code session
 - More games (Tetris, Pong, etc.)

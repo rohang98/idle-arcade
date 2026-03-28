@@ -18,6 +18,12 @@ Terminal games that auto-launch when Claude Code is idle.
 
 **The killer demo:** Claude starts thinking → tmux popup with Snake → Claude finishes → game disappears.
 
+## Requirements
+
+- Node.js 20+
+- macOS or Linux
+- tmux (optional, for popup display)
+
 ## Installation
 
 ```bash
