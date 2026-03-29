@@ -1,15 +1,19 @@
 import type { ReactElement } from 'react';
 import type { DisplayHandle, DisplayOptions, DisplayStrategy } from './types.js';
-import { tmuxDisplay } from './tmux.js';
+import { ghosttyDisplay } from './ghostty.js';
 import { inlineDisplay } from './inline.js';
 
 export * from './types.js';
-export { tmuxDisplay } from './tmux.js';
+export { ghosttyDisplay } from './ghostty.js';
 export { inlineDisplay } from './inline.js';
 
-class DisplayManager {
-  private strategies: DisplayStrategy[] = [tmuxDisplay, inlineDisplay];
+export class DisplayManager {
+  private strategies: DisplayStrategy[];
   private activeHandle: DisplayHandle | null = null;
+
+  constructor(strategies?: DisplayStrategy[]) {
+    this.strategies = strategies ?? [ghosttyDisplay, inlineDisplay];
+  }
 
   async launch(
     component: ReactElement,

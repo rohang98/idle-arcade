@@ -1,4 +1,4 @@
-import { spawn, type ChildProcess } from 'child_process';
+import { spawn } from 'child_process';
 import { promisify } from 'util';
 import { exec as execCb } from 'child_process';
 import { existsSync } from 'fs';
@@ -26,7 +26,6 @@ export class GhosttyDisplay implements DisplayStrategy {
   readonly id = 'ghostty';
   readonly name = 'Ghostty Window';
 
-  private activeProcess: ChildProcess | null = null;
   private activeHandle: DisplayHandle | null = null;
 
   async isAvailable(): Promise<boolean> {
@@ -60,11 +59,8 @@ export class GhosttyDisplay implements DisplayStrategy {
       `--quit-after-last-window-closed=true`,
     ], { stdio: 'ignore' });
 
-    this.activeProcess = proc;
-
     proc.on('exit', () => {
       isActive = false;
-      this.activeProcess = null;
       this.activeHandle = null;
     });
 
@@ -72,7 +68,6 @@ export class GhosttyDisplay implements DisplayStrategy {
       if (!isActive) return;
       isActive = false;
       proc.kill('SIGTERM');
-      this.activeProcess = null;
       this.activeHandle = null;
     };
 
