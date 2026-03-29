@@ -47,12 +47,10 @@ export class GhosttyDisplay implements DisplayStrategy {
     const height = options?.height ?? 30;
     const title = options?.title ?? 'idle-arcade';
 
-    const playCmd = `${process.execPath} ${process.argv[1]} play ${gameId} --popup`;
-
     let isActive = true;
 
     const proc = spawn(binary, [
-      `-e`, playCmd,
+      `-e`, process.execPath, process.argv[1]!, `play`, gameId, `--popup`,
       `--window-width=${width}`,
       `--window-height=${height}`,
       `--title=${title}`,
