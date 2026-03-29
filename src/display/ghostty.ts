@@ -42,7 +42,6 @@ export class GhosttyDisplay implements DisplayStrategy {
       throw new Error('Ghostty binary not found');
     }
 
-    const gameId = options?.gameId ?? 'snake';
     const width = options?.width ?? 80;
     const height = options?.height ?? 30;
     const title = options?.title ?? 'idle-arcade';
@@ -54,7 +53,7 @@ export class GhosttyDisplay implements DisplayStrategy {
       `--window-height=${height}`,
       `--title=${title}`,
       `--quit-after-last-window-closed=true`,
-      `-e`, process.execPath, process.argv[1]!, `play`, gameId,
+      `-e`, process.execPath, process.argv[1]!, `arcade`,
     ], { stdio: 'ignore' });
 
     proc.on('exit', () => {
