@@ -25,6 +25,7 @@ export function SnakeGame({
   dimensions,
   events,
   onExit,
+  hideDefaultGameOver,
 }: GameProps): React.ReactElement {
   const { exit } = useApp();
 
@@ -74,7 +75,7 @@ export function SnakeGame({
     }
 
     if (stateRef.current.isGameOver) {
-      if (input === 'r' || input === 'R') {
+      if (!hideDefaultGameOver && (input === 'r' || input === 'R')) {
         restart();
       }
       return;
@@ -180,19 +181,21 @@ export function SnakeGame({
 
       <Text color="cyan">{bottomBorder}</Text>
 
-      <Box marginTop={1}>
-        {state.isGameOver ? (
-          <Text color="red" bold>
-            Game Over! Press R to restart, Q to quit
-          </Text>
-        ) : state.isPaused ? (
-          <Text color="yellow">Paused - Press P to resume</Text>
-        ) : (
-          <Text dimColor>
-            ←↑↓→/WASD to move | P pause | Q quit
-          </Text>
-        )}
-      </Box>
+      {!hideDefaultGameOver || !state.isGameOver ? (
+        <Box marginTop={1}>
+          {state.isGameOver ? (
+            <Text color="red" bold>
+              Game Over! Press R to restart, Q to quit
+            </Text>
+          ) : state.isPaused ? (
+            <Text color="yellow">Paused - Press P to resume</Text>
+          ) : (
+            <Text dimColor>
+              ←↑↓→/WASD to move | P pause | Q quit
+            </Text>
+          )}
+        </Box>
+      ) : null}
     </Box>
   );
 }

@@ -92,9 +92,9 @@ export function incrementStat(
   updateStats(stats);
 }
 
-export function recordGamePlayed(gameId: string, score: number, duration?: number): void {
+export function recordGamePlayed(gameId: string, score: number, duration?: number): boolean {
   incrementStat('gamesPlayed');
-  updateHighScore(gameId, score, duration);
+  return updateHighScore(gameId, score, duration);
 }
 
 export function getConfigDir(): string {

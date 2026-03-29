@@ -36,6 +36,8 @@ export interface GameProps {
   events?: GameEvents;
   /** Called when the game wants to exit (e.g., user pressed 'q') */
   onExit?: () => void;
+  /** When true, the game should hide its built-in game over UI (handled by GameShell) */
+  hideDefaultGameOver?: boolean;
 }
 
 /**
