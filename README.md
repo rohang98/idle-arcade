@@ -3,23 +3,28 @@
 Terminal games that auto-launch when Claude Code is thinking.
 
 ```
-╔══════════════════════════════════════╗
-║                              Score: 5║
-║                                      ║
-║          ○○○●                        ║
-║                         ◆            ║
-║                                      ║
-╚══════════════════════════════════════╝
+  ╭──────────────────────────────────╮
+  │                                  │
+  │          I D L E                 │
+  │        A R C A D E               │
+  │                                  │
+  ├──────────────────────────────────┤
+  │  > Snake              Best: 42  │
+  ├──────────────────────────────────┤
+  │  Up/Down  Enter Play  Q Quit    │
+  ╰──────────────────────────────────╯
 ```
 
 ## What is this?
 
-When Claude Code is thinking, a game pops up in your terminal. When Claude finishes, the game vanishes. Kill time while you wait.
+A retro arcade that pops up when Claude Code is thinking. Pick a game from the menu, play while you wait, and it vanishes when Claude needs your attention. Like the Chrome dinosaur game, but for your AI coding assistant.
 
 ## Requirements
 
 - **Node.js** ≥ 20
-- **Ghostty** — games launch in a new Ghostty window. If Ghostty isn't available, the game renders inline (alternate screen buffer).
+- **Ghostty** terminal — games launch in a new Ghostty window
+
+Other terminals won't see errors — the hooks silently no-op if Ghostty isn't detected.
 
 ## Install
 
@@ -33,38 +38,42 @@ Then configure the Claude Code hooks:
 idle-arcade setup
 ```
 
-Next time Claude Code starts thinking, Snake will launch.
+Next time Claude Code starts thinking, the arcade menu will appear.
 
 ## Usage
 
 ```bash
-# Play directly
+# Open the arcade menu directly
+idle-arcade arcade
+
+# Play a specific game
 idle-arcade play snake
 
-# List games
+# List available games
 idle-arcade games
 
-# High scores
+# View high scores
 idle-arcade scores
 ```
 
 ## How It Works
 
 ```
-Claude Code hooks → idle-arcade daemon → Ghostty window / inline
+Claude Code hooks → idle-arcade daemon → Ghostty window → arcade menu
 ```
 
-1. Claude Code hooks call `idle-arcade hook <event>` on tool use and stop events
-2. The daemon starts automatically on the first hook event
-3. After 1.5s of Claude thinking, a game launches in a new Ghostty window
-4. When Claude finishes, the game dismisses automatically
+1. Claude Code hooks fire `idle-arcade hook thinking` when Claude starts working
+2. A background daemon receives the event via a unix socket
+3. After 1.5s of continuous thinking, a Ghostty window opens with the arcade menu
+4. Pick a game and play — scores are tracked locally
+5. When Claude finishes, the window dismisses automatically
+6. Game over? Choose **Play Again**, **Return to Menu**, or **Quit**
 
-## Display Modes
+## The Arcade Experience
 
-Automatically detected:
-
-1. **Ghostty window** (recommended) — opens a new terminal window, closes on dismiss
-2. **Inline** — alternate screen buffer fallback when Ghostty isn't available
+- **Menu screen** — browse available games with high scores displayed
+- **Game shell** — wraps each game with score tracking and a game over modal
+- **Game over modal** — shows your score, celebrates new high scores, offers Play Again / Return to Menu / Quit
 
 ## Watch Options
 
@@ -122,7 +131,6 @@ rm -rf ~/.config/idle-arcade
 
 - More games (Tetris, Breakout, 2048)
 - More terminal support (iTerm2, WezTerm, Kitty, Terminal.app)
-- Game selection rotation
 
 ## Contributing
 

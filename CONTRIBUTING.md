@@ -68,6 +68,10 @@ npm run build
 ./dist/cli/index.js play your-game
 ```
 
+### Arcade integration
+
+When launched from the arcade menu, your game is wrapped in `GameShell` which provides the game over modal. Your component receives `hideDefaultGameOver: true` — when set, hide any built-in game over UI and let the shell handle it via the `onGameOver` event.
+
 ## Code Style
 
 - Use TypeScript strict mode
@@ -83,7 +87,7 @@ npm run build
 - Support pause (user might need to return to Claude)
 - Show clear controls on screen
 - Keep minimum dimensions reasonable (fit in a popup)
-- Use Unicode box-drawing characters for borders
+- Use Ink's `<Box borderStyle>` for borders (avoids character width issues across terminals)
 - Use colors sparingly but effectively
 
 ## Pull Request Process
@@ -91,14 +95,14 @@ npm run build
 1. Fork the repository
 2. Create a feature branch (`git checkout -b add-tetris-game`)
 3. Make your changes
-4. Run tests and linting (`npm run lint && npm run typecheck`)
+4. Run tests and linting (`npm test && npm run lint && npm run typecheck`)
 5. Commit with a clear message
 6. Push and open a PR
 
 ## Development Setup
 
 ```bash
-git clone https://github.com/yourusername/idle-arcade.git
+git clone https://github.com/rohang98/idle-arcade.git
 cd idle-arcade
 npm install
 npm run build
