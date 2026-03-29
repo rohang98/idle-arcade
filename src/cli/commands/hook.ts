@@ -7,13 +7,20 @@ import { SOCKET_PATH } from '../../config.js';
 /**
  * Hook handler invoked by Claude Code. Must complete within 1000ms.
  * Sends event to daemon socket, starting the daemon if needed.
+ * Only activates when running inside a supported terminal (e.g. Ghostty).
  */
 export async function hookCommand(event: string): Promise<void> {
+  if (!isSupportedTerminal()) return;
+
   if (await trySendEvent(event)) return;
 
   spawnDaemon();
   await new Promise((r) => setTimeout(r, 300));
   await trySendEvent(event);
+}
+
+function isSupportedTerminal(): boolean {
+  return process.env['TERM_PROGRAM'] === 'ghostty';
 }
 
 function trySendEvent(event: string): Promise<boolean> {
