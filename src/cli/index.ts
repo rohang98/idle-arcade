@@ -9,6 +9,7 @@ import { scoresCommand } from './commands/scores.js';
 import { listCommand } from './commands/list.js';
 import { hookCommand } from './commands/hook.js';
 import { uninstallCommand } from './commands/uninstall.js';
+import { arcadeCommand } from './commands/arcade.js';
 
 import '../games/index.js';
 
@@ -21,6 +22,13 @@ program
   .name('idle-arcade')
   .description('Terminal games that auto-launch when Claude Code is idle')
   .version(version);
+
+program
+  .command('arcade')
+  .description('Open the retro arcade menu')
+  .action(async () => {
+    await arcadeCommand();
+  });
 
 program
   .command('play <game>')
