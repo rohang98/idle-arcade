@@ -4,7 +4,7 @@ import { recordGamePlayed } from '../../state/index.js';
 
 export async function playCommand(
   gameId: string,
-  options: { popup?: boolean }
+  _options?: { popup?: boolean }
 ): Promise<void> {
   const game = getGame(gameId);
 
@@ -33,10 +33,8 @@ export async function playCommand(
   const startTime = Date.now();
   let finalScore = 0;
 
-  const useAltScreen = !options.popup;
-  if (useAltScreen) {
-    process.stdout.write('\x1b[?1049h\x1b[?25l');
-  }
+  // Always use alt screen for a clean display
+  process.stdout.write('\x1b[?1049h\x1b[?25l');
 
   const GameComponent = game.component;
   const instance = render(
@@ -57,8 +55,6 @@ export async function playCommand(
     await instance.waitUntilExit();
   } finally {
     recordGamePlayed(gameId, finalScore, Date.now() - startTime);
-    if (useAltScreen) {
-      process.stdout.write('\x1b[?25h\x1b[?1049l');
-    }
+    process.stdout.write('\x1b[?25h\x1b[?1049l');
   }
 }

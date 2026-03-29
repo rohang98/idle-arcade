@@ -50,11 +50,11 @@ export class GhosttyDisplay implements DisplayStrategy {
     let isActive = true;
 
     const proc = spawn(binary, [
-      `-e`, process.execPath, process.argv[1]!, `play`, gameId, `--popup`,
       `--window-width=${width}`,
       `--window-height=${height}`,
       `--title=${title}`,
       `--quit-after-last-window-closed=true`,
+      `-e`, process.execPath, process.argv[1]!, `play`, gameId,
     ], { stdio: 'ignore' });
 
     proc.on('exit', () => {
