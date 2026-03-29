@@ -64,11 +64,12 @@ export class GhosttyDisplay implements DisplayStrategy {
       this.activeHandle = null;
     });
 
-    const dismiss = async (): Promise<void> => {
-      if (!isActive) return;
+    const dismiss = (): Promise<void> => {
+      if (!isActive) return Promise.resolve();
       isActive = false;
       proc.kill('SIGTERM');
       this.activeHandle = null;
+      return Promise.resolve();
     };
 
     const handle: DisplayHandle = { dismiss, isActive: () => isActive };

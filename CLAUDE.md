@@ -29,7 +29,7 @@ src/
 ├── display/                # Display strategies
 │   ├── types.ts           # DisplayStrategy, DisplayHandle interfaces
 │   ├── index.ts           # DisplayManager (auto-detects best strategy)
-│   ├── tmux.ts            # tmux popup display
+│   ├── ghostty.ts         # Ghostty window display
 │   └── inline.ts          # Inline terminal (alternate screen buffer)
 │
 ├── detector/               # Idle detection
@@ -89,6 +89,7 @@ interface DisplayStrategy {
 
 ```bash
 npm run build      # Compile TypeScript
+npm test           # Run tests (vitest)
 npm run lint       # ESLint (warnings for console.log are OK)
 npm run typecheck  # Type checking only
 npm run dev        # tsx watch mode
