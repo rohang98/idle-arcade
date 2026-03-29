@@ -13,6 +13,7 @@ src/
 │       ├── watch.ts       # `idle-arcade watch` - daemon mode
 │       ├── setup.ts       # `idle-arcade setup` - configure hooks
 │       ├── hook.ts        # `idle-arcade hook <event>` - hook handler (auto-starts daemon)
+│       ├── arcade.tsx     # `idle-arcade arcade` - retro arcade menu
 │       ├── list.ts        # `idle-arcade games` - list games
 │       └── scores.ts      # `idle-arcade scores` - high scores
 │
@@ -25,6 +26,13 @@ src/
 │       ├── SnakeGame.tsx  # React/Ink component
 │       ├── logic.ts       # Pure game logic functions
 │       └── types.ts       # Snake-specific types
+│
+├── ui/                     # Shared UI components
+│   ├── ArcadeScreen.tsx   # Top-level screen router (menu ↔ game)
+│   ├── ArcadeMenu.tsx     # Retro arcade menu with game selection
+│   ├── GameShell.tsx      # Game wrapper with game-over modal
+│   ├── GameOverModal.tsx  # Centered game over overlay
+│   └── ascii-art.ts       # ASCII art title, helpers
 │
 ├── display/                # Display strategies
 │   ├── types.ts           # DisplayStrategy, DisplayHandle interfaces
@@ -98,6 +106,7 @@ npm run dev        # tsx watch mode
 ## Hook Integration
 
 Claude Code hooks call `idle-arcade hook <event>` which auto-starts the daemon if needed.
+Hooks only activate when `TERM_PROGRAM=ghostty` — silently no-op in other terminals and the desktop app.
 
 `idle-arcade setup` auto-configures `~/.claude/settings.json`.
 
