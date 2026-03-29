@@ -1,6 +1,6 @@
 import type { GameDefinition } from './types.js';
 
-class GameRegistry {
+export class GameRegistry {
   private games = new Map<string, GameDefinition>();
 
   register(game: GameDefinition): void {
