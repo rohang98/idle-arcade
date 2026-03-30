@@ -37,7 +37,9 @@ export function SnakeGame({
   );
 
   const stateRef = useRef(state);
-  stateRef.current = state;
+  useEffect(() => {
+    stateRef.current = state;
+  });
 
   const lastScoreRef = useRef(0);
 

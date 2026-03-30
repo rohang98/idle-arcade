@@ -22,7 +22,8 @@ export function GameShell({
   const [score, setScore] = useState(0);
   const [isNewHighScore, setIsNewHighScore] = useState(false);
   const [gameKey, setGameKey] = useState(0);
-  const startTimeRef = useRef(Date.now());
+  const startTimeRef = useRef(0);
+  startTimeRef.current ||= Date.now();
 
   const handleScoreChange = useCallback((newScore: number) => {
     setScore(newScore);
